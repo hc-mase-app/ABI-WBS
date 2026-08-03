@@ -94,3 +94,37 @@ export async function PATCH(req: NextRequest) {
     )
   }
 }
+
+export async function DELETE(req: NextRequest) {
+  if (!validateAdminToken(req)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  try {
+    const { reportId } = await req.json()
+
+    if (typeof reportId !== 'string' || !reportId.trim()) {
+      return NextResponse.json(
+        { error: 'Report ID is required' },
+        { status: 400 }
+      )
+    }
+
+    const deletedReports = await db
+      .delete(reports)
+      .where(sql`id = ${reportId}`)
+      .returning({ id: reports.id })
+
+    if (deletedReports.length === 0) {
+      return NextResponse.json({ error: 'Report not found' }, { status: 404 })
+    }
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('[v0] Error deleting report:', error)
+    return NextResponse.json(
+      { error: 'Failed to delete report' },
+      { status: 500 }
+    )
+  }
+}

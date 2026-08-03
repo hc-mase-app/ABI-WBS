@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { LogOut, AlertCircle, Filter, Search, Eye, Settings, Home } from 'lucide-react'
+import { LogOut, AlertCircle, Filter, Eye, Settings, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -37,6 +37,7 @@ export default function AdminDashboard() {
   const [categoryFilter, setCategoryFilter] = useState('')
   const [severityFilter, setSeverityFilter] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
+  const [deletingReportId, setDeletingReportId] = useState<string | null>(null)
 
   useEffect(() => {
     checkAuth()
@@ -98,6 +99,46 @@ export default function AdminDashboard() {
   const handleLogout = () => {
     localStorage.removeItem('adminToken')
     router.push('/')
+  }
+
+  const handleDelete = async (report: Report) => {
+    const confirmed = window.confirm(
+      `Delete report "${report.title}" (${report.trackingcode})? This action cannot be undone.`
+    )
+
+    if (!confirmed) return
+
+    try {
+      setDeletingReportId(report.id)
+      setError('')
+
+      const token = localStorage.getItem('adminToken')
+      const response = await fetch('/api/admin/reports', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-token': token || '',
+        },
+        body: JSON.stringify({ reportId: report.id }),
+      })
+
+      if (response.status === 401) {
+        localStorage.removeItem('adminToken')
+        router.push('/admin/login')
+        return
+      }
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to delete report')
+      }
+
+      await loadReports()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete report')
+    } finally {
+      setDeletingReportId(null)
+    }
   }
 
   const filteredReports = reports.filter(report =>
@@ -349,13 +390,27 @@ export default function AdminDashboard() {
                         {new Date(report.createdat).toLocaleDateString()}
                       </td>
                       <td className="px-4 sm:px-6 py-4 text-xs sm:text-sm">
-                        <Link
-                          href={`/admin/reports/${report.id}`}
-                          className="inline-flex items-center gap-1 sm:gap-2 bg-blue-600 hover:bg-blue-700 text-white px-2 sm:px-3 py-1 rounded text-xs font-semibold transition"
-                        >
-                          <Eye className="w-3 h-3" />
-                          <span className="hidden sm:inline">View</span>
-                        </Link>
+                        <div className="flex items-center gap-2">
+                          <Link
+                            href={`/admin/reports/${report.id}`}
+                            className="inline-flex items-center gap-1 sm:gap-2 bg-blue-600 hover:bg-blue-700 text-white px-2 sm:px-3 py-1 rounded text-xs font-semibold transition"
+                          >
+                            <Eye className="w-3 h-3" />
+                            <span className="hidden sm:inline">View</span>
+                          </Link>
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(report)}
+                            disabled={deletingReportId === report.id}
+                            className="inline-flex items-center gap-1 sm:gap-2 bg-red-600 hover:bg-red-700 disabled:bg-red-900 disabled:cursor-not-allowed text-white px-2 sm:px-3 py-1 rounded text-xs font-semibold transition"
+                            aria-label={`Delete report ${report.trackingcode}`}
+                          >
+                            <Trash2 className="w-3 h-3" />
+                            <span className="hidden sm:inline">
+                              {deletingReportId === report.id ? 'Deleting...' : 'Delete'}
+                            </span>
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
