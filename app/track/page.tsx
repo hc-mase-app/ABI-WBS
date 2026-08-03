@@ -98,7 +98,7 @@ export default function TrackPage() {
                 onChange={(e) => setTrackingCode(e.target.value.toUpperCase())}
                 placeholder="Enter tracking code (e.g., ABC123DEF456)"
                 maxLength={12}
-                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent uppercase text-sm sm:text-base"
+                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg bg-white text-gray-900 caret-green-700 placeholder:text-gray-400 focus:ring-2 focus:ring-green-500 focus:border-transparent uppercase text-sm sm:text-base"
               />
               <button
                 type="submit"
