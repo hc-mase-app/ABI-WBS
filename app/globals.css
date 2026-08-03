@@ -161,3 +161,18 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Keep tracking codes readable when browser dark mode or extensions override form colors. */
+.tracking-code-input {
+  color: #111827 !important;
+  -webkit-text-fill-color: #111827 !important;
+  caret-color: #15803d !important;
+  background-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+.tracking-code-input::placeholder {
+  color: #9ca3af !important;
+  -webkit-text-fill-color: #9ca3af !important;
+  opacity: 1 !important;
+}
