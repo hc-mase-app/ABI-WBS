@@ -48,8 +48,7 @@ export default function HomePage() {
             Speak Up, Be Heard, Stay Safe
           </h1>
           <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-8 max-w-2xl mx-auto leading-relaxed">
-            Abhitech&apos;s Speak Up system is a secure channel to report concerns, complaints, and violations. 
-            Anonymous reporting, protected identity, and zero tolerance for retaliation.
+            A secure and confidential channel to share employee feedback, suggestions, concerns, complaints, or suspected misconduct—with options to report openly, confidentially, or anonymously, and protection from retaliation.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/submit" className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 sm:px-8 py-3 rounded-lg font-semibold transition text-center text-sm sm:text-base">
