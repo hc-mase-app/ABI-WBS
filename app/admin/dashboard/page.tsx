@@ -8,7 +8,7 @@ import Image from 'next/image'
 
 interface Report {
   id: string
-  trackingcode: string
+  trackingCode: string
   title: string
   description: string
   category: string
@@ -16,8 +16,8 @@ interface Report {
   status: string
   reporterEmail?: string | null
   reportDate: string
-  adminnotes?: string | null
-  createdat: string
+  adminNotes?: string | null
+  createdAt: string
 }
 
 interface Stats {
@@ -103,7 +103,7 @@ export default function AdminDashboard() {
 
   const handleDelete = async (report: Report) => {
     const confirmed = window.confirm(
-      `Delete report "${report.title}" (${report.trackingcode})? This action cannot be undone.`
+      `Delete report "${report.title}" (${report.trackingCode})? This action cannot be undone.`
     )
 
     if (!confirmed) return
@@ -143,7 +143,7 @@ export default function AdminDashboard() {
 
   const filteredReports = reports.filter(report =>
     report.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    report.trackingcode.toLowerCase().includes(searchQuery.toLowerCase())
+    report.trackingCode.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
   const getSeverityColor = (severity: string) => {
@@ -360,7 +360,7 @@ export default function AdminDashboard() {
                       className="border-b border-white/5 hover:bg-white/10 transition"
                     >
                       <td className="px-4 sm:px-6 py-4 text-xs sm:text-sm font-mono text-blue-300">
-                        {report.trackingcode}
+                        {report.trackingCode}
                       </td>
                       <td className="px-4 sm:px-6 py-4 text-xs sm:text-sm text-white max-w-xs truncate">
                         {report.title}
@@ -387,7 +387,7 @@ export default function AdminDashboard() {
                         </span>
                       </td>
                       <td className="px-4 sm:px-6 py-4 text-xs sm:text-sm text-blue-200 hidden md:table-cell">
-                        {new Date(report.createdat).toLocaleDateString()}
+                        {new Date(report.createdAt).toLocaleDateString()}
                       </td>
                       <td className="px-4 sm:px-6 py-4 text-xs sm:text-sm">
                         <div className="flex items-center gap-2">
@@ -403,7 +403,7 @@ export default function AdminDashboard() {
                             onClick={() => handleDelete(report)}
                             disabled={deletingReportId === report.id}
                             className="inline-flex items-center gap-1 sm:gap-2 bg-red-600 hover:bg-red-700 disabled:bg-red-900 disabled:cursor-not-allowed text-white px-2 sm:px-3 py-1 rounded text-xs font-semibold transition"
-                            aria-label={`Delete report ${report.trackingcode}`}
+                            aria-label={`Delete report ${report.trackingCode}`}
                           >
                             <Trash2 className="w-3 h-3" />
                             <span className="hidden sm:inline">

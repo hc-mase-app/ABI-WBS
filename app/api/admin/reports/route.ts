@@ -76,9 +76,9 @@ export async function PATCH(req: NextRequest) {
       )
     }
 
-    const updateData: any = { updatedat: new Date() }
+    const updateData: Partial<typeof reports.$inferInsert> = { updatedAt: new Date() }
     if (status) updateData.status = status
-    if (adminNotes !== undefined) updateData.adminnotes = adminNotes
+    if (adminNotes !== undefined) updateData.adminNotes = adminNotes
 
     await db
       .update(reports)

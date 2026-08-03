@@ -7,19 +7,19 @@ import { ArrowLeft, Save, AlertCircle, Check } from 'lucide-react'
 
 interface Report {
   id: string
-  trackingcode: string
+  trackingCode: string
   title: string
   description: string
   category: string
   severity: string
   department?: string | null
   status: string
-  adminnotes?: string | null
+  adminNotes?: string | null
   reporterEmail?: string | null
   reporterPhone?: string | null
   reportDate: string
-  createdat: string
-  updatedat: string
+  createdAt: string
+  updatedAt: string
 }
 
 export default function AdminReportDetail() {
@@ -64,7 +64,7 @@ export default function AdminReportDetail() {
       if (found) {
         setReport(found)
         setStatus(found.status)
-        setNotes(found.adminnotes || '')
+        setNotes(found.adminNotes || '')
       } else {
         setError('Report not found')
       }
@@ -184,7 +184,7 @@ export default function AdminReportDetail() {
             <div className="flex-1">
               <h1 className="text-2xl sm:text-3xl font-bold text-white break-words">{report.title}</h1>
               <p className="text-blue-100 mt-1">
-                Tracking Code: <span className="font-mono text-blue-300">{report.trackingcode}</span>
+                Tracking Code: <span className="font-mono text-blue-300">{report.trackingCode}</span>
               </p>
             </div>
             <div className="flex items-center gap-3">
@@ -288,13 +288,13 @@ export default function AdminReportDetail() {
                 <div>
                   <p className="text-xs font-semibold text-blue-300 uppercase tracking-wider">Created</p>
                   <p className="text-white text-sm mt-2">
-                    {new Date(report.createdat).toLocaleString()}
+                    {new Date(report.createdAt).toLocaleString()}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs font-semibold text-blue-300 uppercase tracking-wider">Updated</p>
                   <p className="text-white text-sm mt-2">
-                    {new Date(report.updatedat).toLocaleString()}
+                    {new Date(report.updatedAt).toLocaleString()}
                   </p>
                 </div>
               </div>
