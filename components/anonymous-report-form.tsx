@@ -224,7 +224,7 @@ export function AnonymousReportForm() {
           required
           placeholder="Summarize the issue in one line"
           maxLength={200}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm sm:text-base"
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm sm:text-base"
         />
         <p className="text-xs text-gray-500 mt-1">{formData.title.length}/200</p>
       </div>
@@ -242,7 +242,7 @@ export function AnonymousReportForm() {
           placeholder="Explain the details of your report with complete information..."
           maxLength={5000}
           rows={8}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm sm:text-base"
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm sm:text-base"
         />
         <p className="text-xs text-gray-500 mt-1">{formData.description.length}/5000</p>
       </div>
@@ -259,7 +259,7 @@ export function AnonymousReportForm() {
             value={formData.department}
             onChange={handleChange}
             placeholder="E.g., Finance, HR, Operations"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm sm:text-base"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm sm:text-base"
           />
         </div>
 
@@ -274,7 +274,7 @@ export function AnonymousReportForm() {
             value={formData.reporterEmail}
             onChange={handleChange}
             placeholder="For report status updates"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm sm:text-base"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm sm:text-base"
           />
         </div>
       </div>
@@ -290,7 +290,7 @@ export function AnonymousReportForm() {
           value={formData.reporterPhone}
           onChange={handleChange}
           placeholder="For contact if needed"
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm sm:text-base"
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm sm:text-base"
         />
       </div>
 
