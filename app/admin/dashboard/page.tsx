@@ -1,0 +1,370 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { LogOut, AlertCircle, Filter, Search, Eye, Settings, Home } from 'lucide-react'
+import Link from 'next/link'
+import Image from 'next/image'
+
+interface Report {
+  id: string
+  trackingcode: string
+  title: string
+  description: string
+  category: string
+  severity: string
+  status: string
+  reporterEmail?: string | null
+  reportDate: string
+  adminnotes?: string | null
+  createdat: string
+}
+
+interface Stats {
+  total: number
+  open: number
+  investigating: number
+  resolved: number
+}
+
+export default function AdminDashboard() {
+  const router = useRouter()
+  const [reports, setReports] = useState<Report[]>([])
+  const [stats, setStats] = useState<Stats>({ total: 0, open: 0, investigating: 0, resolved: 0 })
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [statusFilter, setStatusFilter] = useState('')
+  const [categoryFilter, setCategoryFilter] = useState('')
+  const [severityFilter, setSeverityFilter] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
+
+  useEffect(() => {
+    checkAuth()
+  }, [])
+
+  useEffect(() => {
+    if (reports.length > 0) {
+      loadReports()
+    }
+  }, [statusFilter, categoryFilter, severityFilter])
+
+  const checkAuth = async () => {
+    const token = localStorage.getItem('adminToken')
+    if (!token) {
+      router.push('/admin/login')
+      return
+    }
+    loadReports()
+  }
+
+  const loadReports = async () => {
+    try {
+      setLoading(true)
+      const token = localStorage.getItem('adminToken')
+      
+      const params = new URLSearchParams()
+      if (statusFilter) params.append('status', statusFilter)
+      if (categoryFilter) params.append('category', categoryFilter)
+      if (severityFilter) params.append('severity', severityFilter)
+
+      const response = await fetch(`/api/admin/reports?${params}`, {
+        headers: { 'x-admin-token': token || '' },
+      })
+
+      if (response.status === 401) {
+        localStorage.removeItem('adminToken')
+        router.push('/admin/login')
+        return
+      }
+
+      const data = await response.json()
+      setReports(data.reports || [])
+
+      // Calculate stats
+      const stats = {
+        total: data.total,
+        open: data.reports.filter((r: Report) => r.status === 'open').length,
+        investigating: data.reports.filter((r: Report) => r.status === 'investigating').length,
+        resolved: data.reports.filter((r: Report) => r.status === 'resolved').length,
+      }
+      setStats(stats)
+    } catch (err) {
+      setError('Failed to load reports')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem('adminToken')
+    router.push('/')
+  }
+
+  const filteredReports = reports.filter(report =>
+    report.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    report.trackingcode.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+
+  const getSeverityColor = (severity: string) => {
+    switch (severity) {
+      case 'critical':
+        return 'bg-red-900/20 text-red-200 border-red-800'
+      case 'high':
+        return 'bg-orange-900/20 text-orange-200 border-orange-800'
+      case 'medium':
+        return 'bg-yellow-900/20 text-yellow-200 border-yellow-800'
+      case 'low':
+        return 'bg-green-900/20 text-green-200 border-green-800'
+      default:
+        return 'bg-slate-900/20 text-slate-200 border-slate-800'
+    }
+  }
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'open':
+        return 'bg-blue-900/20 text-blue-200 border-blue-800'
+      case 'investigating':
+        return 'bg-purple-900/20 text-purple-200 border-purple-800'
+      case 'resolved':
+        return 'bg-green-900/20 text-green-200 border-green-800'
+      case 'closed':
+        return 'bg-slate-900/20 text-slate-200 border-slate-800'
+      default:
+        return 'bg-slate-900/20 text-slate-200 border-slate-800'
+    }
+  }
+
+  return (
+    <main className="min-h-screen bg-gradient-to-br from-slate-900 via-green-900 to-slate-900">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-green-900 to-emerald-800 border-b border-green-700 shadow-lg">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <Image
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Logo-Abhitech-WKYuLp4lUYbxjEWZoDP9cQw60WckgV.webp"
+              alt="Abhitech"
+              width={40}
+              height={40}
+              className="h-10 w-auto"
+            />
+            <div>
+              <h1 className="text-xl sm:text-3xl font-bold text-white">Reports Dashboard</h1>
+              <p className="text-green-100 mt-1 text-xs sm:text-base">Manage whistleblowing reports</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/admin/settings"
+              className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-3 sm:px-4 py-2 rounded-lg transition transform hover:scale-105 text-sm sm:text-base"
+            >
+              <Settings className="w-4 h-4" />
+              <span className="hidden sm:inline">Settings</span>
+            </Link>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-3 sm:px-4 py-2 rounded-lg transition transform hover:scale-105 text-sm sm:text-base"
+            >
+              <LogOut className="w-4 h-4" />
+              <span className="hidden sm:inline">Logout</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <div className="bg-white/5 backdrop-blur border border-white/10 rounded-lg p-6 hover:bg-white/10 transition">
+            <p className="text-blue-200 text-sm font-semibold">Total Reports</p>
+            <p className="text-4xl font-bold text-white mt-2">{stats.total}</p>
+          </div>
+          <div className="bg-blue-500/10 backdrop-blur border border-blue-500/20 rounded-lg p-6 hover:bg-blue-500/20 transition">
+            <p className="text-blue-200 text-sm font-semibold">Pending Review</p>
+            <p className="text-4xl font-bold text-blue-100 mt-2">{stats.open}</p>
+          </div>
+          <div className="bg-purple-500/10 backdrop-blur border border-purple-500/20 rounded-lg p-6 hover:bg-purple-500/20 transition">
+            <p className="text-purple-200 text-sm font-semibold">Investigating</p>
+            <p className="text-4xl font-bold text-purple-100 mt-2">{stats.investigating}</p>
+          </div>
+          <div className="bg-green-500/10 backdrop-blur border border-green-500/20 rounded-lg p-6 hover:bg-green-500/20 transition">
+            <p className="text-green-200 text-sm font-semibold">Resolved</p>
+            <p className="text-4xl font-bold text-green-100 mt-2">{stats.resolved}</p>
+          </div>
+        </div>
+
+        {/* Filters */}
+        <div className="bg-white/5 backdrop-blur border border-white/10 rounded-lg p-6 mb-8">
+          <div className="flex items-center gap-2 mb-4">
+            <Filter className="w-5 h-5 text-blue-300" />
+            <h2 className="text-lg font-semibold text-white">Filters & Search</h2>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-white mb-2">
+                Search Reports
+              </label>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Title or tracking code..."
+                className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:ring-2 focus:ring-blue-400 focus:border-transparent focus:bg-white/20"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-white mb-2">
+                Status
+              </label>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-blue-400 focus:border-transparent focus:bg-white/20 appearance-none cursor-pointer"
+              >
+                <option value="" className="bg-slate-800 text-white">All Status</option>
+                <option value="open" className="bg-slate-800 text-white">Pending Review</option>
+                <option value="investigating" className="bg-slate-800 text-white">Investigating</option>
+                <option value="resolved" className="bg-slate-800 text-white">Resolved</option>
+                <option value="closed" className="bg-slate-800 text-white">Closed</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-white mb-2">
+                Category
+              </label>
+              <select
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+                className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-blue-400 focus:border-transparent focus:bg-white/20 appearance-none cursor-pointer"
+              >
+                <option value="" className="bg-slate-800 text-white">All Categories</option>
+                <option value="Workplace Harassment" className="bg-slate-800 text-white">Workplace Harassment</option>
+                <option value="Discrimination" className="bg-slate-800 text-white">Discrimination</option>
+                <option value="Safety Violations" className="bg-slate-800 text-white">Safety Violations</option>
+                <option value="Financial Misconduct" className="bg-slate-800 text-white">Financial Misconduct</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-white mb-2">
+                Severity
+              </label>
+              <select
+                value={severityFilter}
+                onChange={(e) => setSeverityFilter(e.target.value)}
+                className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-blue-400 focus:border-transparent focus:bg-white/20 appearance-none cursor-pointer"
+              >
+                <option value="" className="bg-slate-800 text-white">All Severity</option>
+                <option value="critical" className="bg-slate-800 text-white">Critical</option>
+                <option value="high" className="bg-slate-800 text-white">High</option>
+                <option value="medium" className="bg-slate-800 text-white">Medium</option>
+                <option value="low" className="bg-slate-800 text-white">Low</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Reports Table */}
+        {error && (
+          <div className="flex items-start gap-3 p-4 bg-red-500/20 border border-red-500/50 rounded-lg mb-6">
+            <AlertCircle className="w-5 h-5 text-red-300 flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-red-200">{error}</p>
+          </div>
+        )}
+
+        {loading ? (
+          <div className="text-center py-12">
+            <p className="text-blue-200">Loading reports...</p>
+          </div>
+        ) : filteredReports.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-blue-200">No reports found</p>
+          </div>
+        ) : (
+          <div className="bg-white/5 backdrop-blur border border-white/10 rounded-lg overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-max">
+                <thead>
+                  <tr className="border-b border-white/10 bg-white/10">
+                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-semibold text-blue-200">
+                      Tracking Code
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-semibold text-blue-200">
+                      Title
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-semibold text-blue-200 hidden sm:table-cell">
+                      Category
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-semibold text-blue-200">
+                      Severity
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-semibold text-blue-200">
+                      Status
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-semibold text-blue-200 hidden md:table-cell">
+                      Date
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 text-left text-xs font-semibold text-blue-200">
+                      Action
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredReports.map((report) => (
+                    <tr
+                      key={report.id}
+                      className="border-b border-white/5 hover:bg-white/10 transition"
+                    >
+                      <td className="px-4 sm:px-6 py-4 text-xs sm:text-sm font-mono text-blue-300">
+                        {report.trackingcode}
+                      </td>
+                      <td className="px-4 sm:px-6 py-4 text-xs sm:text-sm text-white max-w-xs truncate">
+                        {report.title}
+                      </td>
+                      <td className="px-4 sm:px-6 py-4 text-xs sm:text-sm text-blue-100 hidden sm:table-cell">
+                        {report.category}
+                      </td>
+                      <td className="px-4 sm:px-6 py-4 text-xs sm:text-sm">
+                        <span
+                          className={`px-2 py-1 rounded border text-xs font-semibold ${getSeverityColor(
+                            report.severity
+                          )}`}
+                        >
+                          {report.severity.charAt(0).toUpperCase() + report.severity.slice(1)}
+                        </span>
+                      </td>
+                      <td className="px-4 sm:px-6 py-4 text-xs sm:text-sm">
+                        <span
+                          className={`px-2 py-1 rounded border text-xs font-semibold ${getStatusColor(
+                            report.status
+                          )}`}
+                        >
+                          {report.status.charAt(0).toUpperCase() + report.status.slice(1)}
+                        </span>
+                      </td>
+                      <td className="px-4 sm:px-6 py-4 text-xs sm:text-sm text-blue-200 hidden md:table-cell">
+                        {new Date(report.createdat).toLocaleDateString()}
+                      </td>
+                      <td className="px-4 sm:px-6 py-4 text-xs sm:text-sm">
+                        <Link
+                          href={`/admin/reports/${report.id}`}
+                          className="inline-flex items-center gap-1 sm:gap-2 bg-blue-600 hover:bg-blue-700 text-white px-2 sm:px-3 py-1 rounded text-xs font-semibold transition"
+                        >
+                          <Eye className="w-3 h-3" />
+                          <span className="hidden sm:inline">View</span>
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+      </div>
+    </main>
+  )
+}
