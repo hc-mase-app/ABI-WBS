@@ -4,6 +4,10 @@ import { useState } from 'react'
 import { CheckCircle2, AlertCircle, Copy } from 'lucide-react'
 
 const CATEGORIES = [
+  'Employee Feedback',
+  'Suggestion & Improvement',
+  'Workplace Concern',
+  'Complaint or Grievance',
   'Workplace Harassment',
   'Discrimination',
   'Safety Violations',
@@ -14,6 +18,7 @@ const CATEGORIES = [
   'Policy Violations',
   'Corruption',
   'Fraud',
+  'Data Privacy & Information Security',
   'Other',
 ]
 

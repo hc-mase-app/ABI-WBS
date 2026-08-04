@@ -282,10 +282,22 @@ export default function AdminDashboard() {
                 className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-blue-400 focus:border-transparent focus:bg-white/20 appearance-none cursor-pointer"
               >
                 <option value="" className="bg-slate-800 text-white">All Categories</option>
+                <option value="Employee Feedback" className="bg-slate-800 text-white">Employee Feedback</option>
+                <option value="Suggestion & Improvement" className="bg-slate-800 text-white">Suggestion &amp; Improvement</option>
+                <option value="Workplace Concern" className="bg-slate-800 text-white">Workplace Concern</option>
+                <option value="Complaint or Grievance" className="bg-slate-800 text-white">Complaint or Grievance</option>
                 <option value="Workplace Harassment" className="bg-slate-800 text-white">Workplace Harassment</option>
                 <option value="Discrimination" className="bg-slate-800 text-white">Discrimination</option>
                 <option value="Safety Violations" className="bg-slate-800 text-white">Safety Violations</option>
                 <option value="Financial Misconduct" className="bg-slate-800 text-white">Financial Misconduct</option>
+                <option value="Code of Conduct Violations" className="bg-slate-800 text-white">Code of Conduct Violations</option>
+                <option value="Management Abuse" className="bg-slate-800 text-white">Management Abuse</option>
+                <option value="Unethical Behavior" className="bg-slate-800 text-white">Unethical Behavior</option>
+                <option value="Policy Violations" className="bg-slate-800 text-white">Policy Violations</option>
+                <option value="Corruption" className="bg-slate-800 text-white">Corruption</option>
+                <option value="Fraud" className="bg-slate-800 text-white">Fraud</option>
+                <option value="Data Privacy & Information Security" className="bg-slate-800 text-white">Data Privacy &amp; Information Security</option>
+                <option value="Other" className="bg-slate-800 text-white">Other</option>
               </select>
             </div>
 
