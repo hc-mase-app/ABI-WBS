@@ -242,6 +242,10 @@ export function AnonymousReportForm() {
 
   return (
     <form onSubmit={handleSubmit} className="max-w-2xl mx-auto">
+      <div className="mb-7 border-b border-gray-200 pb-5">
+        <h2 className="text-xl font-bold text-gray-900 sm:text-2xl">Report Details</h2>
+        <p className="mt-1 text-sm text-gray-600">Fields marked with an asterisk (*) are required.</p>
+      </div>
       {error && (
         <div className="mb-6 flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-lg">
           <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
@@ -271,7 +275,7 @@ export function AnonymousReportForm() {
 
         <div>
           <label htmlFor="severity" className="block text-sm font-semibold text-gray-900 mb-2">
-            Severity Level <span className="text-red-600">*</span>
+            Urgency Level <span className="text-red-600">*</span>
           </label>
           <select
             id="severity"
@@ -289,7 +293,7 @@ export function AnonymousReportForm() {
 
       <div className="mb-6">
         <label htmlFor="title" className="block text-sm font-semibold text-gray-900 mb-2">
-          Report Title <span className="text-red-600">*</span>
+          Title <span className="text-red-600">*</span>
         </label>
         <input
           id="title"
@@ -298,7 +302,7 @@ export function AnonymousReportForm() {
           value={formData.title}
           onChange={handleChange}
           required
-          placeholder="Summarize the issue in one line"
+          placeholder="Briefly summarize your feedback or report"
           maxLength={200}
           className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm sm:text-base"
         />
@@ -307,7 +311,7 @@ export function AnonymousReportForm() {
 
       <div className="mb-6">
         <label htmlFor="description" className="block text-sm font-semibold text-gray-900 mb-2">
-          Detailed Description <span className="text-red-600">*</span>
+          Details <span className="text-red-600">*</span>
         </label>
         <textarea
           id="description"
@@ -315,12 +319,17 @@ export function AnonymousReportForm() {
           value={formData.description}
           onChange={handleChange}
           required
-          placeholder="Explain the details of your report with complete information..."
+          placeholder="Describe what happened, your feedback, or your suggestion. Include dates, locations, and people when relevant."
           maxLength={5000}
           rows={8}
           className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm sm:text-base"
         />
         <p className="text-xs text-gray-500 mt-1">{formData.description.length}/5000</p>
+      </div>
+
+      <div className="mb-4 mt-8 border-t border-gray-200 pt-6">
+        <h2 className="text-lg font-bold text-gray-900">Contact Information</h2>
+        <p className="mt-1 text-sm text-gray-600">Optional—leave these fields blank to submit anonymously.</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-6">
@@ -349,7 +358,7 @@ export function AnonymousReportForm() {
             type="email"
             value={formData.reporterEmail}
             onChange={handleChange}
-            placeholder="For report status updates"
+            placeholder="Your email address"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm sm:text-base"
           />
         </div>
@@ -365,14 +374,14 @@ export function AnonymousReportForm() {
           type="tel"
           value={formData.reporterPhone}
           onChange={handleChange}
-          placeholder="For contact if needed"
+          placeholder="Your phone number"
           className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm sm:text-base"
         />
       </div>
 
-      <div className="mb-6">
+      <div className="mb-6 mt-8 border-t border-gray-200 pt-6">
         <label htmlFor="evidence" className="block text-sm font-semibold text-gray-900 mb-2">
-          Evidence / Supporting Files (Optional)
+          Supporting Evidence (Optional)
         </label>
         <label
           htmlFor="evidence"
@@ -415,7 +424,7 @@ export function AnonymousReportForm() {
 
       <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
         <p className="text-xs sm:text-sm text-green-800">
-          <strong>Your privacy is protected:</strong> Your report is completely anonymous. Only the information you provide will be recorded. No other identity data is collected.
+          <strong>Your privacy choice:</strong> Only provide contact information if you are comfortable doing so. You can still receive updates and reply using your tracking code.
         </p>
       </div>
 
@@ -424,7 +433,7 @@ export function AnonymousReportForm() {
         disabled={loading}
         className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white py-3 px-6 rounded-lg font-semibold transition text-sm sm:text-base"
       >
-        {loading ? 'Submitting...' : 'Submit Report'}
+        {loading ? 'Submitting...' : 'Submit Feedback or Report'}
       </button>
     </form>
   )

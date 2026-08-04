@@ -1,20 +1,19 @@
 import { AnonymousReportForm } from '@/components/anonymous-report-form'
 import Link from 'next/link'
 import Image from 'next/image'
-import { AlertCircle, FileText, Shield, Home } from 'lucide-react'
+import { AlertCircle, FileText, Home, LockKeyhole, MessageCircleMore, Paperclip } from 'lucide-react'
 
 export const metadata = {
-  title: 'Submit Report - Speak Up System',
-  description: 'Submit your anonymous report safely and securely',
+  title: 'Submit Feedback or Report - Abhitech Speak Up',
+  description: 'Share employee feedback, suggestions, concerns, complaints, or suspected misconduct securely.',
 }
 
 export default function SubmitPage() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-green-50 via-white to-yellow-50">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-green-600 to-emerald-600 shadow-lg">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 hover:opacity-90 transition">
+      <header className="border-b border-green-100 bg-white/90 shadow-sm">
+        <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-3 sm:px-6 sm:py-4">
+          <Link href="/" className="flex items-center gap-2.5 transition hover:opacity-90">
             <Image
               src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Logo-Abhitech-WKYuLp4lUYbxjEWZoDP9cQw60WckgV.webp"
               alt="Abhitech"
@@ -22,93 +21,96 @@ export default function SubmitPage() {
               height={40}
               className="h-8 w-auto sm:h-10"
             />
-            <span className="text-white font-bold text-sm sm:text-lg hidden sm:inline">Abhitech</span>
+            <div className="hidden sm:block">
+              <span className="text-lg font-bold text-green-900">Abhitech</span>
+              <p className="text-xs text-green-600">Speak Up</p>
+            </div>
           </Link>
-          <Link href="/" className="text-white hover:text-yellow-100 transition flex items-center gap-1 text-sm sm:text-base">
-            <Home className="w-4 h-4 sm:w-5 sm:h-5" />
+          <Link href="/" className="flex items-center gap-1 text-sm font-semibold text-gray-600 transition hover:text-green-700 sm:text-base">
+            <Home className="h-4 w-4 sm:h-5 sm:w-5" />
             <span className="hidden sm:inline">Back Home</span>
           </Link>
         </div>
-      </div>
+      </header>
 
-      {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-        <div className="bg-white rounded-xl border border-green-200 p-6 sm:p-8 shadow-lg mb-8">
-          <div className="flex flex-col sm:flex-row items-start gap-4 mb-8">
-            <div className="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
-              <FileText className="w-6 h-6 text-green-600" />
+      <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-12">
+        <section className="mb-6 rounded-2xl border border-green-100 bg-white p-6 shadow-sm sm:p-8">
+          <div className="mb-7 flex flex-col items-start gap-4 sm:flex-row">
+            <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-green-100">
+              <FileText className="h-6 w-6 text-green-700" />
             </div>
-            <div className="flex-1">
-              <h1 className="text-2xl sm:text-4xl font-bold text-gray-900">Submit Anonymous Report</h1>
-              <p className="text-gray-600 mt-2 text-sm sm:text-base">Your report will be handled with seriousness, professionalism, and complete protection</p>
+            <div>
+              <p className="mb-1 text-xs font-bold uppercase tracking-[0.16em] text-green-700">Employee Feedback & Reporting Channel</p>
+              <h1 className="text-2xl font-bold text-gray-900 sm:text-4xl">Share Feedback or Submit a Report</h1>
+              <p className="mt-2 text-sm leading-relaxed text-gray-600 sm:text-base">Use this form for feedback, suggestions, workplace concerns, complaints, or suspected misconduct.</p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-            <div className="flex items-start gap-3 p-4 bg-green-50 border border-green-200 rounded-lg">
-              <Shield className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+          <div className="mb-7 grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <div className="flex items-start gap-3 rounded-xl border border-green-200 bg-green-50 p-4">
+              <LockKeyhole className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-600" />
               <div>
-                <h3 className="font-semibold text-green-900 text-sm sm:text-base">Complete Anonymity</h3>
-                <p className="text-xs sm:text-sm text-green-800 mt-1">No identity is stored</p>
+                <h2 className="font-semibold text-green-900">Privacy Choice</h2>
+                <p className="mt-1 text-sm text-green-800">Contact details are optional</p>
               </div>
             </div>
-            <div className="flex items-start gap-3 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <Shield className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+            <div className="flex items-start gap-3 rounded-xl border border-yellow-200 bg-yellow-50 p-4">
+              <Paperclip className="mt-0.5 h-5 w-5 flex-shrink-0 text-yellow-600" />
               <div>
-                <h3 className="font-semibold text-yellow-900 text-sm sm:text-base">Secure Tracking</h3>
-                <p className="text-xs sm:text-sm text-yellow-800 mt-1">Unique code to track status</p>
+                <h2 className="font-semibold text-yellow-900">Add Evidence</h2>
+                <p className="mt-1 text-sm text-yellow-800">Images and PDF are supported</p>
               </div>
             </div>
-            <div className="flex items-start gap-3 p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
-              <Shield className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" />
+            <div className="flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+              <MessageCircleMore className="mt-0.5 h-5 w-5 flex-shrink-0 text-emerald-600" />
               <div>
-                <h3 className="font-semibold text-emerald-900 text-sm sm:text-base">Protection</h3>
-                <p className="text-xs sm:text-sm text-emerald-800 mt-1">Zero retaliation policy</p>
+                <h2 className="font-semibold text-emerald-900">Track & Reply</h2>
+                <p className="mt-1 text-sm text-emerald-800">One tracking code is all you need</p>
               </div>
             </div>
           </div>
 
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-8 flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5 flex-shrink-0" />
-            <div className="flex-1">
-              <h3 className="font-semibold text-yellow-900 text-sm sm:text-base">Important Guidelines</h3>
-              <ul className="text-xs sm:text-sm text-yellow-800 mt-2 space-y-1">
-                <li>• Provide as much detail as possible to facilitate investigation</li>
-                <li>• Include dates, times, and location if relevant</li>
-                <li>• Explain who, what, when, where, and why</li>
-                <li>• Email and phone are optional (only if you want status updates)</li>
+          <div className="flex items-start gap-3 rounded-xl border border-yellow-200 bg-yellow-50 p-4">
+            <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-yellow-600" />
+            <div>
+              <h2 className="font-semibold text-yellow-900">Before You Submit</h2>
+              <ul className="mt-2 list-disc space-y-1 pl-4 text-sm text-yellow-800">
+                <li>Describe what happened and include relevant dates, locations, and people.</li>
+                <li>Attach supporting evidence when available.</li>
+                <li>Leave email and phone blank if you prefer to remain anonymous.</li>
+                <li>Save the tracking code displayed after submission.</li>
               </ul>
             </div>
           </div>
-        </div>
+        </section>
 
-        <div className="bg-white rounded-xl border border-green-200 p-6 sm:p-8 shadow-lg mb-8">
+        <section className="mb-6 rounded-2xl border border-green-100 bg-white p-6 shadow-sm sm:p-8">
           <AnonymousReportForm />
-        </div>
+        </section>
 
-        <div className="bg-white rounded-xl border border-green-200 p-6 sm:p-8 shadow-lg">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-6">Frequently Asked Questions</h2>
-          <div className="space-y-6">
+        <section className="rounded-2xl border border-green-100 bg-white p-6 shadow-sm sm:p-8">
+          <h2 className="mb-6 text-xl font-bold text-gray-900 sm:text-2xl">Good to Know</h2>
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div>
-              <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Is my report truly anonymous?</h3>
-              <p className="text-gray-600 text-sm sm:text-base">Yes, completely anonymous. We do not collect or store any identity information except what you voluntarily provide (email or phone).</p>
+              <h3 className="mb-2 font-semibold text-gray-900">Can I report anonymously?</h3>
+              <p className="text-sm leading-relaxed text-gray-600">Yes. Email, phone number, and department are optional. Only enter personal details you choose to provide.</p>
             </div>
             <div>
-              <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">How do I track my report?</h3>
-              <p className="text-gray-600 text-sm sm:text-base">You will receive a unique tracking code after submitting your report. Use this code on the Track Report page to view the investigation status.</p>
+              <h3 className="mb-2 font-semibold text-gray-900">How do I track my report?</h3>
+              <p className="text-sm leading-relaxed text-gray-600">Save the tracking code shown after submission. It lets you view status, read messages, and reply to the review team.</p>
             </div>
             <div>
-              <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Will my contact information be used?</h3>
-              <p className="text-gray-600 text-sm sm:text-base">Email and phone will only be used to provide status updates or request additional information if needed. This information will not be shared with anyone.</p>
+              <h3 className="mb-2 font-semibold text-gray-900">What evidence can I attach?</h3>
+              <p className="text-sm leading-relaxed text-gray-600">You can attach up to three JPG, PNG, WEBP, or PDF files, with a maximum size of 5 MB per file.</p>
             </div>
             <div>
-              <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">What happens to my report?</h3>
-              <p className="text-gray-600 text-sm sm:text-base">Your report will be reviewed by our investigation team. We will conduct a thorough investigation and take appropriate action based on our findings.</p>
+              <h3 className="mb-2 font-semibold text-gray-900">What happens after submission?</h3>
+              <p className="text-sm leading-relaxed text-gray-600">The review team assesses the report, updates its status, and may request more information through the tracking page.</p>
             </div>
           </div>
-        </div>
+        </section>
 
-        <Link href="/" className="inline-flex items-center gap-2 text-green-600 hover:text-green-700 font-semibold text-sm sm:text-base mt-8">
+        <Link href="/" className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-green-700 transition hover:text-green-800 sm:text-base">
           ← Back to Home
         </Link>
       </div>
