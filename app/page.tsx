@@ -1,19 +1,67 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { Shield, Lock, CheckCircle2, Eye, Settings } from 'lucide-react'
+import {
+  CheckCircle2,
+  LockKeyhole,
+  MessageCircleMore,
+  Paperclip,
+  Settings,
+} from 'lucide-react'
 
 export const metadata = {
-  title: 'Speak Up - Abhitech Whistleblowing System',
-  description: 'Anonymous, secure, and protected whistleblowing platform by Abhitech',
+  title: 'Speak Up - Abhitech Employee Feedback & Reporting System',
+  description:
+    'A secure and confidential channel for Abhitech employees to share feedback, suggestions, concerns, complaints, or suspected misconduct.',
 }
+
+const reportCategories = [
+  {
+    title: 'Feedback & Ideas',
+    description: 'Employee feedback, suggestions, and opportunities for improvement.',
+  },
+  {
+    title: 'Workplace Concerns',
+    description: 'Workplace issues, complaints, grievances, harassment, or discrimination.',
+  },
+  {
+    title: 'Safety & Conduct',
+    description: 'Safety risks, management concerns, policy, or code of conduct violations.',
+  },
+  {
+    title: 'Suspected Misconduct',
+    description: 'Fraud, corruption, financial misconduct, unethical behavior, or data risks.',
+  },
+]
+
+const processSteps = [
+  {
+    number: '1',
+    title: 'Submit',
+    description: 'Share your report and attach supporting images or PDF files if needed.',
+  },
+  {
+    number: '2',
+    title: 'Save Your Code',
+    description: 'Keep the tracking code shown after your report is submitted.',
+  },
+  {
+    number: '3',
+    title: 'Track & Communicate',
+    description: 'Use the code to view progress, read updates, and reply securely.',
+  },
+  {
+    number: '4',
+    title: 'Follow the Resolution',
+    description: 'Continue checking the report until the review process is completed.',
+  },
+]
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-yellow-50">
-      {/* Navigation */}
-      <nav className="border-b border-green-200 bg-white/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2 sm:gap-3">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-yellow-50 text-gray-900">
+      <nav className="sticky top-0 z-50 border-b border-green-100 bg-white/90 backdrop-blur-sm">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 sm:py-4">
+          <Link href="/" className="flex items-center gap-2.5" aria-label="Abhitech Speak Up home">
             <Image
               src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Logo-Abhitech-WKYuLp4lUYbxjEWZoDP9cQw60WckgV.webp"
               alt="Abhitech Logo"
@@ -22,171 +70,184 @@ export default function HomePage() {
               className="h-8 w-auto sm:h-10"
             />
             <div className="hidden sm:block">
-              <span className="text-lg sm:text-xl font-bold text-green-900">Abhitech</span>
+              <span className="text-lg font-bold text-green-900">Abhitech</span>
               <p className="text-xs text-green-600">Speak Up</p>
             </div>
-          </div>
+          </Link>
 
           <div className="flex items-center gap-2 sm:gap-4">
-            <Link href="/track" className="text-gray-700 hover:text-green-700 font-semibold text-sm sm:text-base transition">
+            <Link
+              href="/track"
+              className="text-sm font-semibold text-gray-700 transition hover:text-green-700 sm:text-base"
+            >
               Track Report
             </Link>
-            <Link href="/admin/login" className="p-2 hover:bg-gray-100 rounded-lg transition text-gray-700" title="Admin Panel">
-              <Settings className="w-5 h-5" />
+            <Link
+              href="/admin/login"
+              className="rounded-lg p-2 text-gray-500 transition hover:bg-gray-100 hover:text-gray-800"
+              title="Admin Login"
+              aria-label="Admin Login"
+            >
+              <Settings className="h-5 w-5" />
             </Link>
-            <Link href="/submit" className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-4 sm:px-6 py-2 rounded-lg font-semibold transition text-sm sm:text-base">
+            <Link
+              href="/submit"
+              className="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-green-700 sm:px-6 sm:text-base"
+            >
               Submit Report
             </Link>
           </div>
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-20">
-        <div className="text-center mb-12 sm:mb-16">
-          <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-            Speak Up, Be Heard, Stay Safe
-          </h1>
-          <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-8 max-w-2xl mx-auto leading-relaxed">
-            A secure and confidential channel to share employee feedback, suggestions, concerns, complaints, or suspected misconduct—with options to report openly, confidentially, or anonymously, and protection from retaliation.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/submit" className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 sm:px-8 py-3 rounded-lg font-semibold transition text-center text-sm sm:text-base">
-              Submit Report
-            </Link>
-            <Link href="/track" className="border border-gray-300 text-gray-700 hover:border-green-400 hover:text-green-700 px-6 sm:px-8 py-3 rounded-lg font-semibold transition text-center text-sm sm:text-base">
-              Track Report
-            </Link>
-          </div>
-        </div>
-
-        {/* Feature Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-20">
-          <div className="bg-white rounded-xl border border-green-200 p-6 sm:p-8 hover:shadow-lg transition">
-            <div className="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center mb-4">
-              <Lock className="w-6 h-6 text-green-600" />
-            </div>
-            <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">Completely Confidential</h3>
-            <p className="text-gray-600 text-sm sm:text-base">Your information is encrypted and protected. Choose to submit anonymously with full privacy guarantee.</p>
-          </div>
-
-          <div className="bg-white rounded-xl border border-yellow-200 p-6 sm:p-8 hover:shadow-lg transition">
-            <div className="w-12 h-12 rounded-lg bg-yellow-100 flex items-center justify-center mb-4">
-              <Shield className="w-6 h-6 text-yellow-600" />
-            </div>
-            <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">Zero Retaliation Policy</h3>
-            <p className="text-gray-600 text-sm sm:text-base">We strictly enforce anti-retaliation measures. Report concerns without fear of negative consequences.</p>
-          </div>
-
-          <div className="bg-white rounded-xl border border-emerald-200 p-6 sm:p-8 hover:shadow-lg transition">
-            <div className="w-12 h-12 rounded-lg bg-emerald-100 flex items-center justify-center mb-4">
-              <Eye className="w-6 h-6 text-emerald-600" />
-            </div>
-            <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">Track Your Report</h3>
-            <p className="text-gray-600 text-sm sm:text-base">Monitor the status of your report in real-time. Receive updates throughout the investigation process.</p>
-          </div>
-        </div>
-
-        {/* How It Works */}
-        <div id="how-it-works" className="bg-white rounded-lg border border-gray-200 p-12 mb-20">
-          <h2 className="text-4xl font-bold text-gray-900 mb-12 text-center">How It Works</h2>
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-            {[
-              { num: '1', title: 'Report', desc: 'Submit your concern securely through our platform' },
-              { num: '2', title: 'Review', desc: 'Our team reviews your report carefully' },
-              { num: '3', title: 'Investigate', desc: 'We investigate thoroughly and professionally' },
-              { num: '4', title: 'Update', desc: 'You receive regular updates on progress' },
-              { num: '5', title: 'Resolve', desc: 'Matter is resolved and documented' },
-            ].map((step) => (
-              <div key={step.num} className="text-center">
-                <div className="w-12 h-12 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center mx-auto mb-4 text-lg">
-                  {step.num}
-                </div>
-                <h3 className="font-semibold text-gray-900 mb-2">{step.title}</h3>
-                <p className="text-sm text-gray-600">{step.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Report Categories */}
-        <div className="mb-20">
-          <h2 className="text-4xl font-bold text-gray-900 mb-8 text-center">What You Can Report</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {[
-              'Workplace Harassment',
-              'Discrimination',
-              'Safety Violations',
-              'Financial Misconduct',
-              'Code of Conduct Violations',
-              'Management Abuse',
-              'Unethical Behavior',
-              'Policy Violations',
-            ].map((category) => (
-              <div key={category} className="bg-white rounded-lg border border-gray-200 p-4 flex items-center gap-3 hover:shadow-md transition">
-                <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0" />
-                <span className="text-gray-700 font-medium">{category}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* CTA Section */}
-        <div className="bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl p-8 sm:p-12 text-center">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4">Ready to Share Your Concerns?</h2>
-          <p className="text-green-100 mb-8 max-w-2xl mx-auto text-sm sm:text-base">
-            Join thousands of employees who have securely reported concerns through our trusted platform. Your voice matters.
-          </p>
-          <Link href="/submit" className="inline-block bg-white hover:bg-gray-100 text-green-600 px-8 py-3 rounded-lg font-semibold transition text-sm sm:text-base">
-            Get Started Now
-          </Link>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t border-green-200 bg-gray-900 text-gray-300 mt-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 mb-8">
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <Image
-                  src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Logo-Abhitech-WKYuLp4lUYbxjEWZoDP9cQw60WckgV.webp"
-                  alt="Abhitech"
-                  width={30}
-                  height={30}
-                  className="h-8 w-auto"
-                />
-                <span className="font-bold text-white text-sm sm:text-base">Abhitech</span>
-              </div>
-              <p className="text-xs sm:text-sm">Speak Up System - Your voice matters.</p>
-            </div>
-            <div>
-              <h4 className="font-bold text-white mb-4 text-sm sm:text-base">Quick Links</h4>
-              <ul className="space-y-2 text-xs sm:text-sm">
-                <li><Link href="/submit" className="hover:text-green-400 transition">Submit Report</Link></li>
-                <li><Link href="/track" className="hover:text-green-400 transition">Track Report</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-bold text-white mb-4 text-sm sm:text-base">Company</h4>
-              <ul className="space-y-2 text-xs sm:text-sm">
-                <li><a href="https://www.abhitech.co.id" className="hover:text-green-400 transition">About Abhitech</a></li>
-                <li><Link href="/" className="hover:text-green-400 transition">Contact Us</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-bold text-white mb-4 text-sm sm:text-base">Support</h4>
-              <ul className="space-y-2 text-xs sm:text-sm">
-                <li>Email: support@abhitech.co.id</li>
-                <li>24/7 Available</li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-gray-800 pt-8">
-            <p className="text-center text-xs sm:text-sm text-gray-400">
-              © 2026 Abhitech. All Rights Reserved. Speak Up, Be Heard, Stay Safe.
+      <main>
+        <section className="mx-auto max-w-7xl px-4 pb-16 pt-16 sm:px-6 sm:pb-20 sm:pt-24">
+          <div className="mx-auto max-w-4xl text-center">
+            <p className="mb-4 text-sm font-bold uppercase tracking-[0.2em] text-green-700">
+              Employee Feedback & Reporting Channel
             </p>
+            <h1 className="mb-6 text-4xl font-bold leading-tight text-gray-950 sm:text-5xl md:text-6xl">
+              Speak Up, Be Heard, Stay Safe
+            </h1>
+            <p className="mx-auto mb-9 max-w-3xl text-base leading-relaxed text-gray-600 sm:text-lg md:text-xl">
+              A secure and confidential channel to share employee feedback, suggestions,
+              concerns, complaints, or suspected misconduct—with options to report openly,
+              confidentially, or anonymously, and protection from retaliation.
+            </p>
+            <div className="flex flex-col justify-center gap-3 sm:flex-row">
+              <Link
+                href="/submit"
+                className="rounded-lg bg-green-600 px-8 py-3 font-semibold text-white transition hover:bg-green-700"
+              >
+                Submit a Report
+              </Link>
+              <Link
+                href="/track"
+                className="rounded-lg border border-gray-300 bg-white px-8 py-3 font-semibold text-gray-700 transition hover:border-green-500 hover:text-green-700"
+              >
+                Track Existing Report
+              </Link>
+            </div>
           </div>
+
+          <div className="mt-16 grid grid-cols-1 gap-5 md:grid-cols-3">
+            {[
+              {
+                icon: LockKeyhole,
+                title: 'Your Choice of Privacy',
+                description:
+                  'Report openly, confidentially, or anonymously. Contact details are optional.',
+              },
+              {
+                icon: Paperclip,
+                title: 'Supporting Evidence',
+                description:
+                  'Attach up to three images or PDF files when submitting your report.',
+              },
+              {
+                icon: MessageCircleMore,
+                title: 'Secure Two-Way Updates',
+                description:
+                  'Use your tracking code to view status updates and communicate with the review team.',
+              },
+            ].map(({ icon: Icon, title, description }) => (
+              <article key={title} className="rounded-2xl border border-green-100 bg-white p-6 shadow-sm sm:p-7">
+                <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-green-100">
+                  <Icon className="h-5 w-5 text-green-700" />
+                </div>
+                <h2 className="mb-2 text-lg font-bold">{title}</h2>
+                <p className="leading-relaxed text-gray-600">{description}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="border-y border-gray-100 bg-white py-16 sm:py-20">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6">
+            <div className="mb-10 text-center">
+              <h2 className="text-3xl font-bold sm:text-4xl">What You Can Share</h2>
+              <p className="mx-auto mt-3 max-w-2xl text-gray-600">
+                The channel is not limited to misconduct. You can also share ideas, feedback,
+                or other workplace matters.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {reportCategories.map((category) => (
+                <article key={category.title} className="rounded-xl border border-gray-200 p-5">
+                  <div className="mb-3 flex items-center gap-2">
+                    <CheckCircle2 className="h-5 w-5 shrink-0 text-green-600" />
+                    <h3 className="font-bold">{category.title}</h3>
+                  </div>
+                  <p className="text-sm leading-relaxed text-gray-600">{category.description}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20">
+          <div className="mb-10 text-center">
+            <h2 className="text-3xl font-bold sm:text-4xl">How It Works</h2>
+            <p className="mt-3 text-gray-600">One tracking code keeps the process simple.</p>
+          </div>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+            {processSteps.map((step) => (
+              <article key={step.number} className="rounded-xl border border-green-100 bg-white p-6">
+                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-green-600 font-bold text-white">
+                  {step.number}
+                </div>
+                <h3 className="mb-2 text-lg font-bold">{step.title}</h3>
+                <p className="text-sm leading-relaxed text-gray-600">{step.description}</p>
+              </article>
+            ))}
+          </div>
+
+          <div className="mt-16 rounded-2xl bg-green-700 px-6 py-10 text-center text-white sm:px-12 sm:py-12">
+            <h2 className="text-2xl font-bold sm:text-3xl">Your voice matters.</h2>
+            <p className="mx-auto mb-7 mt-3 max-w-2xl text-green-100">
+              Share what you have experienced or observed. You decide how much personal
+              information to provide.
+            </p>
+            <Link
+              href="/submit"
+              className="inline-block rounded-lg bg-white px-8 py-3 font-semibold text-green-700 transition hover:bg-green-50"
+            >
+              Start a Report
+            </Link>
+          </div>
+        </section>
+      </main>
+
+      <footer className="border-t border-gray-800 bg-gray-950 text-gray-300">
+        <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-8 sm:px-6 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center gap-3">
+            <Image
+              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Logo-Abhitech-WKYuLp4lUYbxjEWZoDP9cQw60WckgV.webp"
+              alt="Abhitech"
+              width={36}
+              height={36}
+              className="h-9 w-auto"
+            />
+            <div>
+              <p className="font-bold text-white">Abhitech Speak Up</p>
+              <p className="text-sm text-gray-400">Secure employee feedback and reporting.</p>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+            <Link href="/submit" className="transition hover:text-green-400">Submit Report</Link>
+            <Link href="/track" className="transition hover:text-green-400">Track Report</Link>
+            <a
+              href="https://www.abhitech.co.id"
+              target="_blank"
+              rel="noreferrer"
+              className="transition hover:text-green-400"
+            >
+              About Abhitech
+            </a>
+          </div>
+        </div>
+        <div className="border-t border-gray-800 px-4 py-4 text-center text-xs text-gray-500">
+          © 2026 Abhitech. All rights reserved.
         </div>
       </footer>
     </div>
