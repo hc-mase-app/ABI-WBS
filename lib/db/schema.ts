@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, index } from 'drizzle-orm/pg-core'
+import { pgTable, text, timestamp, index, integer } from 'drizzle-orm/pg-core'
 
 // Anonymous Speak Up System Tables
 export const reports = pgTable(
@@ -53,6 +53,7 @@ export const reportAttachments = pgTable(
     fileName: text('filename').notNull(),
     fileUrl: text('fileurl').notNull(),
     fileType: text('filetype'),
+    fileSize: integer('filesize').notNull().default(0),
     uploadedAt: timestamp('uploadedat').notNull().defaultNow(),
     createdAt: timestamp('createdat').notNull().defaultNow(),
   },
@@ -69,6 +70,7 @@ export const reportComments = pgTable(
       .notNull()
       .references(() => reports.id, { onDelete: 'cascade' }),
     comment: text('comment').notNull(),
+    sender: text('sender').notNull().default('admin'),
     createdAt: timestamp('createdat').notNull().defaultNow(),
     updatedAt: timestamp('updatedat').notNull().defaultNow(),
   },

@@ -4,13 +4,14 @@ import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { getReportByTrackingCode } from '@/app/actions/submit-report'
-import { Search, AlertCircle, FileText, Home } from 'lucide-react'
+import { Search, AlertCircle, Download, FileText, Home, MessageCircle, Paperclip, Send } from 'lucide-react'
 
 const STATUS_CONFIG = {
   open: { color: 'blue', label: 'Pending Review', icon: '📋' },
   pending: { color: 'yellow', label: 'Under Review', icon: '⏳' },
   in_progress: { color: 'orange', label: 'In Progress', icon: '🔍' },
   investigating: { color: 'orange', label: 'In Progress', icon: '🔍' },
+  awaiting_information: { color: 'yellow', label: 'Awaiting Information', icon: '⏳' },
   resolved: { color: 'green', label: 'Resolved', icon: '✅' },
   closed: { color: 'gray', label: 'Closed', icon: '❌' },
 }
@@ -28,6 +29,8 @@ export default function TrackPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [searched, setSearched] = useState(false)
+  const [reply, setReply] = useState('')
+  const [sendingReply, setSendingReply] = useState(false)
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -53,6 +56,50 @@ export default function TrackPage() {
       setError('An error occurred while searching for the report')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleSendReply = async () => {
+    if (!reply.trim() || !report) return
+
+    try {
+      setSendingReply(true)
+      setError(null)
+      const response = await fetch('/api/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ trackingCode, message: reply }),
+      })
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.error || 'Failed to send reply')
+
+      const refreshedReport = await getReportByTrackingCode(trackingCode.toUpperCase())
+      setReport(refreshedReport)
+      setReply('')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to send reply')
+    } finally {
+      setSendingReply(false)
+    }
+  }
+
+  const downloadAttachment = async (attachment: { id: string; fileName: string }) => {
+    try {
+      setError(null)
+      const response = await fetch(`/api/attachments/${attachment.id}`, {
+        headers: { 'x-tracking-code': trackingCode.toUpperCase() },
+      })
+      if (!response.ok) throw new Error('Failed to download evidence')
+
+      const fileBlob = await response.blob()
+      const objectUrl = URL.createObjectURL(fileBlob)
+      const link = document.createElement('a')
+      link.href = objectUrl
+      link.download = attachment.fileName
+      link.click()
+      URL.revokeObjectURL(objectUrl)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to download evidence')
     }
   }
 
@@ -178,13 +225,78 @@ export default function TrackPage() {
                   <p className="text-gray-700 whitespace-pre-wrap text-sm sm:text-base">{report.description}</p>
                 </div>
 
-                {/* Investigation Notes */}
-                {report.adminNotes && (
-                  <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                    <p className="text-xs sm:text-sm text-blue-900 mb-2 font-semibold">Investigation Notes</p>
-                    <p className="text-blue-800 whitespace-pre-wrap text-sm sm:text-base">{report.adminNotes}</p>
+                {report.attachments?.length > 0 && (
+                  <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Paperclip className="w-4 h-4 text-amber-700" />
+                      <p className="text-sm text-amber-900 font-semibold">Submitted Evidence</p>
+                    </div>
+                    <div className="space-y-2">
+                      {report.attachments.map((attachment: { id: string; fileName: string; fileSize: number }) => (
+                        <button
+                          key={attachment.id}
+                          type="button"
+                          onClick={() => downloadAttachment(attachment)}
+                          className="w-full flex items-center justify-between gap-3 bg-white hover:bg-amber-100 border border-amber-200 rounded-lg px-3 py-2 text-left transition"
+                        >
+                          <div className="min-w-0">
+                            <p className="text-sm font-medium text-gray-900 truncate">{attachment.fileName}</p>
+                            <p className="text-xs text-gray-500">{(attachment.fileSize / 1024 / 1024).toFixed(2)} MB</p>
+                          </div>
+                          <Download className="w-4 h-4 text-amber-700 flex-shrink-0" />
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 )}
+
+                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="flex items-center gap-2 mb-4">
+                    <MessageCircle className="w-5 h-5 text-blue-700" />
+                    <p className="text-sm sm:text-base text-blue-900 font-semibold">Conversation</p>
+                  </div>
+
+                  <div className="space-y-3 mb-4">
+                    {report.messages?.length > 0 ? report.messages.map((message: { id: string; sender: string; comment: string; createdAt: string }) => (
+                      <div
+                        key={message.id}
+                        className={`rounded-lg p-3 border ${message.sender === 'reporter' ? 'bg-green-100 border-green-200 ml-6' : 'bg-white border-blue-200 mr-6'}`}
+                      >
+                        <div className="flex items-center justify-between gap-3 mb-1">
+                          <span className="text-xs font-semibold text-gray-900">{message.sender === 'reporter' ? 'You' : 'Admin'}</span>
+                          <span className="text-xs text-gray-500">{new Date(message.createdAt).toLocaleString()}</span>
+                        </div>
+                        <p className="text-sm text-gray-800 whitespace-pre-wrap break-words">{message.comment}</p>
+                      </div>
+                    )) : (
+                      <p className="text-sm text-blue-700">No messages yet.</p>
+                    )}
+                  </div>
+
+                  {report.status !== 'closed' ? (
+                    <div>
+                      <textarea
+                        value={reply}
+                        onChange={(e) => setReply(e.target.value)}
+                        placeholder="Write a reply to the administrator..."
+                        rows={4}
+                        maxLength={5000}
+                        className="w-full px-4 py-3 border border-blue-200 rounded-lg bg-white text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleSendReply}
+                        disabled={sendingReply || !reply.trim()}
+                        className="mt-3 inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg font-semibold transition"
+                      >
+                        <Send className="w-4 h-4" />
+                        {sendingReply ? 'Sending...' : 'Send Reply'}
+                      </button>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-gray-600">This conversation has been closed.</p>
+                  )}
+                </div>
               </div>
             </div>
           )}

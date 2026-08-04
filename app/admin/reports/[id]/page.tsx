@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Save, AlertCircle, Check } from 'lucide-react'
+import { ArrowLeft, Save, AlertCircle, Check, Download, MessageCircle, Paperclip, Send } from 'lucide-react'
 
 interface Report {
   id: string
@@ -22,6 +22,21 @@ interface Report {
   updatedAt: string
 }
 
+interface Message {
+  id: string
+  comment: string
+  sender: 'admin' | 'reporter'
+  createdAt: string
+}
+
+interface Attachment {
+  id: string
+  fileName: string
+  fileType?: string | null
+  fileSize: number
+  uploadedAt: string
+}
+
 export default function AdminReportDetail() {
   const router = useRouter()
   const params = useParams()
@@ -34,6 +49,11 @@ export default function AdminReportDetail() {
   const [success, setSuccess] = useState(false)
   const [status, setStatus] = useState('')
   const [notes, setNotes] = useState('')
+  const [messages, setMessages] = useState<Message[]>([])
+  const [attachments, setAttachments] = useState<Attachment[]>([])
+  const [messageText, setMessageText] = useState('')
+  const [requestInformation, setRequestInformation] = useState(false)
+  const [sendingMessage, setSendingMessage] = useState(false)
 
   useEffect(() => {
     loadReport()
@@ -65,6 +85,19 @@ export default function AdminReportDetail() {
         setReport(found)
         setStatus(found.status)
         setNotes(found.adminNotes || '')
+        const authenticatedHeaders = { 'x-admin-token': token }
+        const [messagesResponse, attachmentsResponse] = await Promise.all([
+          fetch(`/api/admin/messages?reportId=${encodeURIComponent(reportId)}`, { headers: authenticatedHeaders }),
+          fetch(`/api/admin/attachments?reportId=${encodeURIComponent(reportId)}`, { headers: authenticatedHeaders }),
+        ])
+        if (messagesResponse.ok) {
+          const messagesData = await messagesResponse.json()
+          setMessages(messagesData.messages || [])
+        }
+        if (attachmentsResponse.ok) {
+          const attachmentsData = await attachmentsResponse.json()
+          setAttachments(attachmentsData.attachments || [])
+        }
       } else {
         setError('Report not found')
       }
@@ -72,6 +105,55 @@ export default function AdminReportDetail() {
       setError('Failed to load report')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleSendMessage = async () => {
+    if (!messageText.trim()) return
+
+    try {
+      setSendingMessage(true)
+      setError('')
+      const token = localStorage.getItem('adminToken')
+      const response = await fetch('/api/admin/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-token': token || '',
+        },
+        body: JSON.stringify({ reportId, message: messageText, requestInformation }),
+      })
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.error || 'Failed to send message')
+
+      setMessageText('')
+      setRequestInformation(false)
+      setStatus(data.status)
+      await loadReport()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to send message')
+    } finally {
+      setSendingMessage(false)
+    }
+  }
+
+  const downloadAttachment = async (attachment: Attachment) => {
+    try {
+      const token = localStorage.getItem('adminToken')
+      const response = await fetch(`/api/admin/attachments/${attachment.id}`, {
+        headers: { 'x-admin-token': token || '' },
+      })
+      if (!response.ok) throw new Error('Failed to download evidence')
+
+      const fileBlob = await response.blob()
+      const objectUrl = URL.createObjectURL(fileBlob)
+      const link = document.createElement('a')
+      link.href = objectUrl
+      link.download = attachment.fileName
+      link.click()
+      URL.revokeObjectURL(objectUrl)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to download evidence')
     }
   }
 
@@ -116,6 +198,8 @@ export default function AdminReportDetail() {
         return 'bg-blue-500/10 text-blue-200 border-blue-500/20'
       case 'in_progress':
         return 'bg-purple-500/10 text-purple-200 border-purple-500/20'
+      case 'awaiting_information':
+        return 'bg-yellow-500/10 text-yellow-200 border-yellow-500/20'
       case 'resolved':
         return 'bg-green-500/10 text-green-200 border-green-500/20'
       case 'closed':
@@ -230,7 +314,87 @@ export default function AdminReportDetail() {
             </div>
 
             <div className="bg-white/5 backdrop-blur border border-white/10 rounded-lg p-6">
-              <h2 className="text-lg font-semibold text-white mb-4">Investigation Notes</h2>
+              <div className="flex items-center gap-2 mb-4">
+                <Paperclip className="w-5 h-5 text-blue-300" />
+                <h2 className="text-lg font-semibold text-white">Evidence</h2>
+              </div>
+              {attachments.length === 0 ? (
+                <p className="text-sm text-blue-200">No evidence was attached.</p>
+              ) : (
+                <div className="space-y-2">
+                  {attachments.map((attachment) => (
+                    <button
+                      key={attachment.id}
+                      type="button"
+                      onClick={() => downloadAttachment(attachment)}
+                      className="w-full flex items-center justify-between gap-3 bg-white/10 hover:bg-white/20 border border-white/10 rounded-lg px-3 py-3 text-left transition"
+                    >
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-white truncate">{attachment.fileName}</p>
+                        <p className="text-xs text-blue-200">{(attachment.fileSize / 1024 / 1024).toFixed(2)} MB</p>
+                      </div>
+                      <Download className="w-4 h-4 text-blue-300 flex-shrink-0" />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="bg-white/5 backdrop-blur border border-white/10 rounded-lg p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <MessageCircle className="w-5 h-5 text-blue-300" />
+                <h2 className="text-lg font-semibold text-white">Public Conversation</h2>
+              </div>
+              <p className="text-xs text-blue-200 mb-4">Messages here are visible to the reporter through their tracking code.</p>
+
+              <div className="space-y-3 max-h-96 overflow-y-auto mb-4">
+                {messages.length === 0 ? (
+                  <p className="text-sm text-blue-200">No messages yet.</p>
+                ) : messages.map((message) => (
+                  <div
+                    key={message.id}
+                    className={`rounded-lg p-3 border ${message.sender === 'admin' ? 'bg-blue-500/20 border-blue-400/30 ml-6' : 'bg-green-500/20 border-green-400/30 mr-6'}`}
+                  >
+                    <div className="flex items-center justify-between gap-3 mb-1">
+                      <span className="text-xs font-semibold text-white">{message.sender === 'admin' ? 'Admin' : 'Reporter'}</span>
+                      <span className="text-xs text-blue-200">{new Date(message.createdAt).toLocaleString()}</span>
+                    </div>
+                    <p className="text-sm text-white whitespace-pre-wrap break-words">{message.comment}</p>
+                  </div>
+                ))}
+              </div>
+
+              <textarea
+                value={messageText}
+                onChange={(e) => setMessageText(e.target.value)}
+                placeholder="Write a public message to the reporter..."
+                rows={4}
+                maxLength={5000}
+                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/50 focus:ring-2 focus:ring-blue-400 focus:border-transparent resize-none"
+              />
+              <label className="flex items-start gap-2 mt-3 text-sm text-blue-100 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={requestInformation}
+                  onChange={(e) => setRequestInformation(e.target.checked)}
+                  className="mt-1"
+                />
+                <span>Request a reply and change status to Awaiting Information</span>
+              </label>
+              <button
+                type="button"
+                onClick={handleSendMessage}
+                disabled={sendingMessage || !messageText.trim()}
+                className="mt-4 inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-900 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg font-semibold transition"
+              >
+                <Send className="w-4 h-4" />
+                {sendingMessage ? 'Sending...' : 'Send Message'}
+              </button>
+            </div>
+
+            <div className="bg-white/5 backdrop-blur border border-white/10 rounded-lg p-6">
+              <h2 className="text-lg font-semibold text-white mb-1">Internal Investigation Notes</h2>
+              <p className="text-xs text-blue-200 mb-4">Only administrators can see these notes.</p>
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
@@ -276,6 +440,7 @@ export default function AdminReportDetail() {
               >
                 <option value="open" className="bg-slate-800 text-white">Pending Review</option>
                 <option value="in_progress" className="bg-slate-800 text-white">In Progress</option>
+                <option value="awaiting_information" className="bg-slate-800 text-white">Awaiting Information</option>
                 <option value="resolved" className="bg-slate-800 text-white">Resolved</option>
                 <option value="closed" className="bg-slate-800 text-white">Closed</option>
               </select>

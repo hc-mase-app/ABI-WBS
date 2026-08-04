@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { reports } from '@/lib/db/schema'
-import { sql } from 'drizzle-orm'
+import { reportAttachments, reports } from '@/lib/db/schema'
+import { eq, sql } from 'drizzle-orm'
+import { del } from '@vercel/blob'
 
 // Simple admin token validation (in production, use proper auth)
 function validateAdminToken(req: NextRequest): boolean {
@@ -23,7 +24,7 @@ export async function GET(req: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '50')
     const offset = parseInt(searchParams.get('offset') || '0')
 
-    let query = db.select().from(reports)
+    let query = db.select().from(reports).$dynamic()
 
     // Apply filters
     const filters = []
@@ -85,7 +86,7 @@ export async function PATCH(req: NextRequest) {
       )
     }
 
-    const allowedStatuses = ['open', 'in_progress', 'resolved', 'closed']
+    const allowedStatuses = ['open', 'in_progress', 'awaiting_information', 'resolved', 'closed']
     if (status && !allowedStatuses.includes(status)) {
       return NextResponse.json({ error: 'Invalid status' }, { status: 400 })
     }
@@ -124,9 +125,24 @@ export async function DELETE(req: NextRequest) {
       )
     }
 
+    const attachments = await db
+      .select({ pathname: reportAttachments.fileUrl })
+      .from(reportAttachments)
+      .where(eq(reportAttachments.reportId, reportId))
+
+    if (attachments.length > 0) {
+      if (!process.env.BLOB_READ_WRITE_TOKEN) {
+        return NextResponse.json(
+          { error: 'Evidence storage is not configured; files cannot be safely deleted' },
+          { status: 503 }
+        )
+      }
+      await del(attachments.map((attachment) => attachment.pathname))
+    }
+
     const deletedReports = await db
       .delete(reports)
-      .where(sql`id = ${reportId}`)
+      .where(eq(reports.id, reportId))
       .returning({ id: reports.id })
 
     if (deletedReports.length === 0) {

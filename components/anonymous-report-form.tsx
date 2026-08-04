@@ -1,7 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import { CheckCircle2, AlertCircle, Copy } from 'lucide-react'
+import { CheckCircle2, AlertCircle, Copy, Paperclip, X } from 'lucide-react'
+import { upload } from '@vercel/blob/client'
+
+const MAX_FILES = 3
+const MAX_FILE_SIZE = 5 * 1024 * 1024
+const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf']
 
 const CATEGORIES = [
   'Employee Feedback',
@@ -45,6 +50,8 @@ export function AnonymousReportForm() {
   const [trackingCode, setTrackingCode] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
+  const [evidenceFiles, setEvidenceFiles] = useState<File[]>([])
+  const [uploadWarning, setUploadWarning] = useState<string | null>(null)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -75,26 +82,52 @@ export function AnonymousReportForm() {
     }
 
     try {
+      const submission = new FormData()
+      submission.append('title', formData.title)
+      submission.append('description', formData.description)
+      submission.append('category', formData.category)
+      submission.append('severity', formData.severity)
+      submission.append('department', formData.department)
+      submission.append('reporterEmail', formData.reporterEmail)
+      submission.append('reporterPhone', formData.reporterPhone)
+      submission.append('evidenceCount', evidenceFiles.length.toString())
+
       const response = await fetch('/api/submit-report', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          title: formData.title,
-          description: formData.description,
-          category: formData.category,
-          severity: formData.severity,
-          department: formData.department || undefined,
-          reporterEmail: formData.reporterEmail || undefined,
-          reporterPhone: formData.reporterPhone || undefined,
-        }),
+        body: submission,
       })
 
       const result = await response.json()
 
       if (result.success && result.trackingCode) {
+        let evidenceUploadFailed = false
+        for (const file of evidenceFiles) {
+          const attachmentId = crypto.randomUUID()
+          const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_').slice(-100)
+          try {
+            await upload(`reports/${result.reportId}/${attachmentId}-${safeName}`, file, {
+              access: 'private',
+              handleUploadUrl: '/api/evidence/upload',
+              contentType: file.type,
+              clientPayload: JSON.stringify({
+                attachmentId,
+                reportId: result.reportId,
+                trackingCode: result.trackingCode,
+                originalName: file.name,
+                fileSize: file.size,
+              }),
+            })
+          } catch {
+            evidenceUploadFailed = true
+          }
+        }
+
         setTrackingCode(result.trackingCode)
+        setUploadWarning(
+          evidenceUploadFailed
+            ? 'Your report was submitted, but one or more evidence files could not be uploaded. Please save your tracking code and contact the administrator if needed.'
+            : null
+        )
         setSubmitted(true)
         setFormData({
           title: '',
@@ -105,6 +138,7 @@ export function AnonymousReportForm() {
           reporterEmail: '',
           reporterPhone: '',
         })
+        setEvidenceFiles([])
       } else {
         setError(result.error || 'An error occurred while submitting the report')
       }
@@ -114,6 +148,36 @@ export function AnonymousReportForm() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleEvidenceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = Array.from(e.target.files || [])
+    e.target.value = ''
+
+    if (evidenceFiles.length + selectedFiles.length > MAX_FILES) {
+      setError(`You can upload a maximum of ${MAX_FILES} evidence files`)
+      return
+    }
+
+    const invalidFile = selectedFiles.find(
+      file => !ALLOWED_FILE_TYPES.includes(file.type) || file.size > MAX_FILE_SIZE
+    )
+
+    if (invalidFile) {
+      setError(
+        !ALLOWED_FILE_TYPES.includes(invalidFile.type)
+          ? `${invalidFile.name} has an unsupported file type`
+          : `${invalidFile.name} exceeds the 5 MB limit`
+      )
+      return
+    }
+
+    setError(null)
+    setEvidenceFiles(files => [...files, ...selectedFiles])
+  }
+
+  const removeEvidence = (index: number) => {
+    setEvidenceFiles(files => files.filter((_, fileIndex) => fileIndex !== index))
   }
 
   const copyToClipboard = () => {
@@ -155,10 +219,17 @@ export function AnonymousReportForm() {
             </p>
           </div>
 
+          {uploadWarning && (
+            <div className="bg-amber-50 border border-amber-300 rounded-lg p-4 mb-6 text-left">
+              <p className="text-sm text-amber-800">{uploadWarning}</p>
+            </div>
+          )}
+
           <button
             onClick={() => {
               setSubmitted(false)
               setTrackingCode('')
+              setUploadWarning(null)
             }}
             className="bg-green-600 hover:bg-green-700 text-white px-6 sm:px-8 py-3 rounded-lg font-semibold transition text-sm sm:text-base"
           >
@@ -297,6 +368,49 @@ export function AnonymousReportForm() {
           placeholder="For contact if needed"
           className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm sm:text-base"
         />
+      </div>
+
+      <div className="mb-6">
+        <label htmlFor="evidence" className="block text-sm font-semibold text-gray-900 mb-2">
+          Evidence / Supporting Files (Optional)
+        </label>
+        <label
+          htmlFor="evidence"
+          className="flex items-center justify-center gap-2 w-full px-4 py-4 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 hover:bg-green-50 hover:border-green-400 cursor-pointer transition text-gray-700"
+        >
+          <Paperclip className="w-5 h-5 text-green-600" />
+          <span className="text-sm font-semibold">Choose images or PDF</span>
+        </label>
+        <input
+          id="evidence"
+          type="file"
+          multiple
+          accept="image/jpeg,image/png,image/webp,application/pdf"
+          onChange={handleEvidenceChange}
+          className="sr-only"
+        />
+        <p className="text-xs text-gray-500 mt-2">Maximum 3 files, 5 MB each. JPG, PNG, WEBP, or PDF.</p>
+
+        {evidenceFiles.length > 0 && (
+          <div className="mt-3 space-y-2">
+            {evidenceFiles.map((file, index) => (
+              <div key={`${file.name}-${file.lastModified}`} className="flex items-center justify-between gap-3 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-gray-900 truncate">{file.name}</p>
+                  <p className="text-xs text-gray-500">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => removeEvidence(index)}
+                  className="p-1 text-red-600 hover:bg-red-100 rounded transition"
+                  aria-label={`Remove ${file.name}`}
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">

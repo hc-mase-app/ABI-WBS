@@ -1,8 +1,8 @@
 'use server'
 
 import { db } from '@/lib/db'
-import { reports, reportComments } from '@/lib/db/schema'
-import { eq } from 'drizzle-orm'
+import { reports, reportAttachments, reportComments } from '@/lib/db/schema'
+import { asc, eq } from 'drizzle-orm'
 import { nanoid } from 'nanoid'
 
 // Generate a unique tracking code (12 characters, alphanumeric)
@@ -75,15 +75,26 @@ export async function getReportByTrackingCode(trackingCode: string) {
       return null
     }
 
-    // Get responses for this report
-    const responses = await db
+    const messages = await db
       .select()
       .from(reportComments)
       .where(eq(reportComments.reportId, report[0].id))
+      .orderBy(asc(reportComments.createdAt))
+
+    const attachments = await db
+      .select({
+        id: reportAttachments.id,
+        fileName: reportAttachments.fileName,
+        fileType: reportAttachments.fileType,
+        fileSize: reportAttachments.fileSize,
+      })
+      .from(reportAttachments)
+      .where(eq(reportAttachments.reportId, report[0].id))
 
     return {
       ...report[0],
-      responses,
+      messages,
+      attachments,
     }
   } catch (error) {
     console.error('[v0] Error fetching report:', error)
