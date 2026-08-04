@@ -34,10 +34,12 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
     return NextResponse.json({ error: 'File not found' }, { status: 404 })
   }
 
+  const disposition = request.nextUrl.searchParams.get('download') === '1' ? 'attachment' : 'inline'
+
   return new NextResponse(result.stream, {
     headers: {
       'Content-Type': attachment[0].fileType || result.blob.contentType || 'application/octet-stream',
-      'Content-Disposition': `attachment; filename*=UTF-8''${encodeURIComponent(attachment[0].fileName)}`,
+      'Content-Disposition': `${disposition}; filename*=UTF-8''${encodeURIComponent(attachment[0].fileName)}`,
       'Cache-Control': 'private, no-store',
       'X-Content-Type-Options': 'nosniff',
     },

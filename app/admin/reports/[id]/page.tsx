@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Save, AlertCircle, Check, Download, MessageCircle, Paperclip, Send } from 'lucide-react'
+import { ArrowLeft, Save, AlertCircle, Check, Download, MessageCircle, Paperclip, Send, X } from 'lucide-react'
 
 interface Report {
   id: string
@@ -54,6 +54,7 @@ export default function AdminReportDetail() {
   const [messageText, setMessageText] = useState('')
   const [requestInformation, setRequestInformation] = useState(false)
   const [sendingMessage, setSendingMessage] = useState(false)
+  const [preview, setPreview] = useState<{ url: string; type: string; name: string } | null>(null)
 
   useEffect(() => {
     loadReport()
@@ -140,7 +141,7 @@ export default function AdminReportDetail() {
   const downloadAttachment = async (attachment: Attachment) => {
     try {
       const token = localStorage.getItem('adminToken')
-      const response = await fetch(`/api/admin/attachments/${attachment.id}`, {
+      const response = await fetch(`/api/admin/attachments/${attachment.id}?download=1`, {
         headers: { 'x-admin-token': token || '' },
       })
       if (!response.ok) throw new Error('Failed to download evidence')
@@ -155,6 +156,31 @@ export default function AdminReportDetail() {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to download evidence')
     }
+  }
+
+  const previewAttachment = async (attachment: Attachment) => {
+    try {
+      const token = localStorage.getItem('adminToken')
+      const response = await fetch(`/api/admin/attachments/${attachment.id}`, {
+        headers: { 'x-admin-token': token || '' },
+      })
+      if (!response.ok) throw new Error('Failed to preview evidence')
+
+      const fileBlob = await response.blob()
+      if (preview) URL.revokeObjectURL(preview.url)
+      setPreview({
+        url: URL.createObjectURL(fileBlob),
+        type: response.headers.get('content-type') || attachment.fileType || '',
+        name: attachment.fileName,
+      })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to preview evidence')
+    }
+  }
+
+  const closePreview = () => {
+    if (preview) URL.revokeObjectURL(preview.url)
+    setPreview(null)
   }
 
   const handleSave = async () => {
@@ -323,18 +349,24 @@ export default function AdminReportDetail() {
               ) : (
                 <div className="space-y-2">
                   {attachments.map((attachment) => (
-                    <button
-                      key={attachment.id}
-                      type="button"
-                      onClick={() => downloadAttachment(attachment)}
-                      className="w-full flex items-center justify-between gap-3 bg-white/10 hover:bg-white/20 border border-white/10 rounded-lg px-3 py-3 text-left transition"
-                    >
-                      <div className="min-w-0">
+                    <div key={attachment.id} className="flex items-center gap-2 bg-white/10 border border-white/10 rounded-lg p-2">
+                      <button
+                        type="button"
+                        onClick={() => previewAttachment(attachment)}
+                        className="min-w-0 flex-1 px-2 py-1 text-left hover:bg-white/10 rounded transition"
+                      >
                         <p className="text-sm font-medium text-white truncate">{attachment.fileName}</p>
-                        <p className="text-xs text-blue-200">{(attachment.fileSize / 1024 / 1024).toFixed(2)} MB</p>
-                      </div>
-                      <Download className="w-4 h-4 text-blue-300 flex-shrink-0" />
-                    </button>
+                        <p className="text-xs text-blue-200">{(attachment.fileSize / 1024 / 1024).toFixed(2)} MB · Click to preview</p>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => downloadAttachment(attachment)}
+                        className="p-2 text-blue-300 hover:bg-white/10 rounded transition"
+                        aria-label={`Download ${attachment.fileName}`}
+                      >
+                        <Download className="w-4 h-4" />
+                      </button>
+                    </div>
                   ))}
                 </div>
               )}
@@ -467,6 +499,26 @@ export default function AdminReportDetail() {
           </div>
         </div>
       </div>
+
+      {preview && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label={`Preview ${preview.name}`}>
+          <div className="w-full max-w-5xl max-h-[92vh] bg-slate-900 border border-white/20 rounded-xl shadow-2xl overflow-hidden">
+            <div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-white/10">
+              <p className="text-sm font-semibold text-white truncate">{preview.name}</p>
+              <button type="button" onClick={closePreview} className="p-2 text-white hover:bg-white/10 rounded-lg" aria-label="Close preview">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="h-[80vh] bg-slate-950 flex items-center justify-center">
+              {preview.type.startsWith('image/') ? (
+                <img src={preview.url} alt={preview.name} className="max-w-full max-h-full object-contain" />
+              ) : (
+                <iframe src={preview.url} title={preview.name} className="w-full h-full bg-white" />
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   )
 }

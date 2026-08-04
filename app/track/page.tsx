@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { getReportByTrackingCode } from '@/app/actions/submit-report'
-import { Search, AlertCircle, Download, FileText, Home, MessageCircle, Paperclip, Send } from 'lucide-react'
+import { Search, AlertCircle, Download, FileText, Home, MessageCircle, Paperclip, Send, X } from 'lucide-react'
 
 const STATUS_CONFIG = {
   open: { color: 'blue', label: 'Pending Review', icon: '📋' },
@@ -31,6 +31,7 @@ export default function TrackPage() {
   const [searched, setSearched] = useState(false)
   const [reply, setReply] = useState('')
   const [sendingReply, setSendingReply] = useState(false)
+  const [preview, setPreview] = useState<{ url: string; type: string; name: string } | null>(null)
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -86,7 +87,7 @@ export default function TrackPage() {
   const downloadAttachment = async (attachment: { id: string; fileName: string }) => {
     try {
       setError(null)
-      const response = await fetch(`/api/attachments/${attachment.id}`, {
+      const response = await fetch(`/api/attachments/${attachment.id}?download=1`, {
         headers: { 'x-tracking-code': trackingCode.toUpperCase() },
       })
       if (!response.ok) throw new Error('Failed to download evidence')
@@ -101,6 +102,31 @@ export default function TrackPage() {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to download evidence')
     }
+  }
+
+  const previewAttachment = async (attachment: { id: string; fileName: string; fileType?: string | null }) => {
+    try {
+      setError(null)
+      const response = await fetch(`/api/attachments/${attachment.id}`, {
+        headers: { 'x-tracking-code': trackingCode.toUpperCase() },
+      })
+      if (!response.ok) throw new Error('Failed to preview evidence')
+
+      const fileBlob = await response.blob()
+      if (preview) URL.revokeObjectURL(preview.url)
+      setPreview({
+        url: URL.createObjectURL(fileBlob),
+        type: response.headers.get('content-type') || attachment.fileType || '',
+        name: attachment.fileName,
+      })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to preview evidence')
+    }
+  }
+
+  const closePreview = () => {
+    if (preview) URL.revokeObjectURL(preview.url)
+    setPreview(null)
   }
 
   return (
@@ -232,19 +258,25 @@ export default function TrackPage() {
                       <p className="text-sm text-amber-900 font-semibold">Submitted Evidence</p>
                     </div>
                     <div className="space-y-2">
-                      {report.attachments.map((attachment: { id: string; fileName: string; fileSize: number }) => (
-                        <button
-                          key={attachment.id}
-                          type="button"
-                          onClick={() => downloadAttachment(attachment)}
-                          className="w-full flex items-center justify-between gap-3 bg-white hover:bg-amber-100 border border-amber-200 rounded-lg px-3 py-2 text-left transition"
-                        >
-                          <div className="min-w-0">
+                      {report.attachments.map((attachment: { id: string; fileName: string; fileSize: number; fileType?: string | null }) => (
+                        <div key={attachment.id} className="flex items-center gap-2 bg-white border border-amber-200 rounded-lg p-2">
+                          <button
+                            type="button"
+                            onClick={() => previewAttachment(attachment)}
+                            className="min-w-0 flex-1 px-2 py-1 text-left hover:bg-amber-50 rounded transition"
+                          >
                             <p className="text-sm font-medium text-gray-900 truncate">{attachment.fileName}</p>
-                            <p className="text-xs text-gray-500">{(attachment.fileSize / 1024 / 1024).toFixed(2)} MB</p>
-                          </div>
-                          <Download className="w-4 h-4 text-amber-700 flex-shrink-0" />
-                        </button>
+                            <p className="text-xs text-gray-500">{(attachment.fileSize / 1024 / 1024).toFixed(2)} MB · Click to preview</p>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => downloadAttachment(attachment)}
+                            className="p-2 text-amber-700 hover:bg-amber-100 rounded transition"
+                            aria-label={`Download ${attachment.fileName}`}
+                          >
+                            <Download className="w-4 h-4" />
+                          </button>
+                        </div>
                       ))}
                     </div>
                   </div>
@@ -306,6 +338,26 @@ export default function TrackPage() {
           ← Back to Home
         </Link>
       </div>
+
+      {preview && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label={`Preview ${preview.name}`}>
+          <div className="w-full max-w-5xl max-h-[92vh] bg-white rounded-xl shadow-2xl overflow-hidden">
+            <div className="flex items-center justify-between gap-4 px-4 py-3 border-b border-gray-200">
+              <p className="text-sm font-semibold text-gray-900 truncate">{preview.name}</p>
+              <button type="button" onClick={closePreview} className="p-2 text-gray-700 hover:bg-gray-100 rounded-lg" aria-label="Close preview">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="h-[80vh] bg-gray-950 flex items-center justify-center">
+              {preview.type.startsWith('image/') ? (
+                <img src={preview.url} alt={preview.name} className="max-w-full max-h-full object-contain" />
+              ) : (
+                <iframe src={preview.url} title={preview.name} className="w-full h-full bg-white" />
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   )
 }
