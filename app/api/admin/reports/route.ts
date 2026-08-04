@@ -27,7 +27,11 @@ export async function GET(req: NextRequest) {
 
     // Apply filters
     const filters = []
-    if (status) filters.push(sql`status = ${status}`)
+    if (status === 'in_progress') {
+      filters.push(sql`status IN ('in_progress', 'investigating')`)
+    } else if (status) {
+      filters.push(sql`status = ${status}`)
+    }
     if (category) filters.push(sql`category = ${category}`)
     if (severity) filters.push(sql`severity = ${severity}`)
 
@@ -46,8 +50,13 @@ export async function GET(req: NextRequest) {
       .select({ count: sql<number>`COUNT(*)` })
       .from(reports)
 
+    const normalizedReports = allReports.map((report) => ({
+      ...report,
+      status: report.status === 'investigating' ? 'in_progress' : report.status,
+    }))
+
     return NextResponse.json({
-      reports: allReports,
+      reports: normalizedReports,
       total: countResult[0]?.count || 0,
       limit,
       offset,
@@ -74,6 +83,11 @@ export async function PATCH(req: NextRequest) {
         { error: 'Report ID is required' },
         { status: 400 }
       )
+    }
+
+    const allowedStatuses = ['open', 'in_progress', 'resolved', 'closed']
+    if (status && !allowedStatuses.includes(status)) {
+      return NextResponse.json({ error: 'Invalid status' }, { status: 400 })
     }
 
     const updateData: Partial<typeof reports.$inferInsert> = { updatedAt: new Date() }

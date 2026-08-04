@@ -9,7 +9,8 @@ import { Search, AlertCircle, FileText, Home } from 'lucide-react'
 const STATUS_CONFIG = {
   open: { color: 'blue', label: 'Pending Review', icon: '📋' },
   pending: { color: 'yellow', label: 'Under Review', icon: '⏳' },
-  investigating: { color: 'orange', label: 'Investigating', icon: '🔍' },
+  in_progress: { color: 'orange', label: 'In Progress', icon: '🔍' },
+  investigating: { color: 'orange', label: 'In Progress', icon: '🔍' },
   resolved: { color: 'green', label: 'Resolved', icon: '✅' },
   closed: { color: 'gray', label: 'Closed', icon: '❌' },
 }

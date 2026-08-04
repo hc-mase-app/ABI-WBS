@@ -114,7 +114,7 @@ export default function AdminReportDetail() {
     switch (status) {
       case 'open':
         return 'bg-blue-500/10 text-blue-200 border-blue-500/20'
-      case 'investigating':
+      case 'in_progress':
         return 'bg-purple-500/10 text-purple-200 border-purple-500/20'
       case 'resolved':
         return 'bg-green-500/10 text-green-200 border-green-500/20'
@@ -275,7 +275,7 @@ export default function AdminReportDetail() {
                 className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:ring-2 focus:ring-blue-400 focus:border-transparent focus:bg-white/20 appearance-none cursor-pointer"
               >
                 <option value="open" className="bg-slate-800 text-white">Pending Review</option>
-                <option value="investigating" className="bg-slate-800 text-white">Investigating</option>
+                <option value="in_progress" className="bg-slate-800 text-white">In Progress</option>
                 <option value="resolved" className="bg-slate-800 text-white">Resolved</option>
                 <option value="closed" className="bg-slate-800 text-white">Closed</option>
               </select>

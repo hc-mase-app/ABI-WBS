@@ -23,14 +23,14 @@ interface Report {
 interface Stats {
   total: number
   open: number
-  investigating: number
+  inProgress: number
   resolved: number
 }
 
 export default function AdminDashboard() {
   const router = useRouter()
   const [reports, setReports] = useState<Report[]>([])
-  const [stats, setStats] = useState<Stats>({ total: 0, open: 0, investigating: 0, resolved: 0 })
+  const [stats, setStats] = useState<Stats>({ total: 0, open: 0, inProgress: 0, resolved: 0 })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
@@ -85,7 +85,7 @@ export default function AdminDashboard() {
       const stats = {
         total: data.total,
         open: data.reports.filter((r: Report) => r.status === 'open').length,
-        investigating: data.reports.filter((r: Report) => r.status === 'investigating').length,
+        inProgress: data.reports.filter((r: Report) => r.status === 'in_progress').length,
         resolved: data.reports.filter((r: Report) => r.status === 'resolved').length,
       }
       setStats(stats)
@@ -165,7 +165,7 @@ export default function AdminDashboard() {
     switch (status) {
       case 'open':
         return 'bg-blue-900/20 text-blue-200 border-blue-800'
-      case 'investigating':
+      case 'in_progress':
         return 'bg-purple-900/20 text-purple-200 border-purple-800'
       case 'resolved':
         return 'bg-green-900/20 text-green-200 border-green-800'
@@ -173,6 +173,22 @@ export default function AdminDashboard() {
         return 'bg-slate-900/20 text-slate-200 border-slate-800'
       default:
         return 'bg-slate-900/20 text-slate-200 border-slate-800'
+    }
+  }
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'open':
+        return 'Pending Review'
+      case 'in_progress':
+      case 'investigating':
+        return 'In Progress'
+      case 'resolved':
+        return 'Resolved'
+      case 'closed':
+        return 'Closed'
+      default:
+        return status
     }
   }
 
@@ -225,8 +241,8 @@ export default function AdminDashboard() {
             <p className="text-4xl font-bold text-blue-100 mt-2">{stats.open}</p>
           </div>
           <div className="bg-purple-500/10 backdrop-blur border border-purple-500/20 rounded-lg p-6 hover:bg-purple-500/20 transition">
-            <p className="text-purple-200 text-sm font-semibold">Investigating</p>
-            <p className="text-4xl font-bold text-purple-100 mt-2">{stats.investigating}</p>
+            <p className="text-purple-200 text-sm font-semibold">In Progress</p>
+            <p className="text-4xl font-bold text-purple-100 mt-2">{stats.inProgress}</p>
           </div>
           <div className="bg-green-500/10 backdrop-blur border border-green-500/20 rounded-lg p-6 hover:bg-green-500/20 transition">
             <p className="text-green-200 text-sm font-semibold">Resolved</p>
@@ -266,7 +282,7 @@ export default function AdminDashboard() {
               >
                 <option value="" className="bg-slate-800 text-white">All Status</option>
                 <option value="open" className="bg-slate-800 text-white">Pending Review</option>
-                <option value="investigating" className="bg-slate-800 text-white">Investigating</option>
+                <option value="in_progress" className="bg-slate-800 text-white">In Progress</option>
                 <option value="resolved" className="bg-slate-800 text-white">Resolved</option>
                 <option value="closed" className="bg-slate-800 text-white">Closed</option>
               </select>
@@ -395,7 +411,7 @@ export default function AdminDashboard() {
                             report.status
                           )}`}
                         >
-                          {report.status.charAt(0).toUpperCase() + report.status.slice(1)}
+                          {getStatusLabel(report.status)}
                         </span>
                       </td>
                       <td className="px-4 sm:px-6 py-4 text-xs sm:text-sm text-blue-200 hidden md:table-cell">
