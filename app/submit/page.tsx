@@ -1,7 +1,7 @@
 import { AnonymousReportForm } from '@/components/anonymous-report-form'
 import Link from 'next/link'
 import Image from 'next/image'
-import { AlertCircle, FileText, Home, LockKeyhole, MessageCircleMore, Paperclip } from 'lucide-react'
+import { Check, FileText, Home, LockKeyhole, MessageCircleMore, Paperclip } from 'lucide-react'
 
 export const metadata = {
   title: 'Submit Feedback or Report - Abhitech Speak Up',
@@ -33,54 +33,39 @@ export default function SubmitPage() {
         </div>
       </header>
 
-      <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 sm:py-12">
-        <section className="mb-6 rounded-2xl border border-green-100 bg-white p-6 shadow-sm sm:p-8">
-          <div className="mb-7 flex flex-col items-start gap-4 sm:flex-row">
-            <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-green-100">
-              <FileText className="h-6 w-6 text-green-700" />
-            </div>
-            <div>
-              <p className="mb-1 text-xs font-bold uppercase tracking-[0.16em] text-green-700">Employee Feedback & Reporting Channel</p>
-              <h1 className="text-2xl font-bold text-gray-900 sm:text-4xl">Share Feedback or Submit a Report</h1>
-              <p className="mt-2 text-sm leading-relaxed text-gray-600 sm:text-base">Use this form for feedback, suggestions, workplace concerns, complaints, or suspected misconduct.</p>
-            </div>
-          </div>
-
-          <div className="mb-7 grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <div className="flex items-start gap-3 rounded-xl border border-green-200 bg-green-50 p-4">
-              <LockKeyhole className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-600" />
-              <div>
-                <h2 className="font-semibold text-green-900">Privacy Choice</h2>
-                <p className="mt-1 text-sm text-green-800">Contact details are optional</p>
+      <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 sm:py-10">
+        <section className="mb-6 overflow-hidden rounded-3xl border border-emerald-100 bg-white shadow-[0_14px_40px_-24px_rgba(5,150,105,0.35)]">
+          <div className="p-6 sm:p-8">
+            <div className="flex items-start gap-4">
+              <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl bg-emerald-600 shadow-sm shadow-emerald-200">
+                <FileText className="h-5 w-5 text-white" />
               </div>
-            </div>
-            <div className="flex items-start gap-3 rounded-xl border border-yellow-200 bg-yellow-50 p-4">
-              <Paperclip className="mt-0.5 h-5 w-5 flex-shrink-0 text-yellow-600" />
               <div>
-                <h2 className="font-semibold text-yellow-900">Add Evidence</h2>
-                <p className="mt-1 text-sm text-yellow-800">Images and PDF are supported</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
-              <MessageCircleMore className="mt-0.5 h-5 w-5 flex-shrink-0 text-emerald-600" />
-              <div>
-                <h2 className="font-semibold text-emerald-900">Track & Reply</h2>
-                <p className="mt-1 text-sm text-emerald-800">One tracking code is all you need</p>
+                <p className="mb-1 text-[11px] font-bold uppercase tracking-[0.18em] text-emerald-700">Employee Speak Up</p>
+                <h1 className="text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">Share feedback or report a concern</h1>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600 sm:text-base">A secure channel for suggestions, workplace concerns, complaints, or suspected misconduct.</p>
               </div>
             </div>
           </div>
 
-          <div className="flex items-start gap-3 rounded-xl border border-yellow-200 bg-yellow-50 p-4">
-            <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-yellow-600" />
-            <div>
-              <h2 className="font-semibold text-yellow-900">Before You Submit</h2>
-              <ul className="mt-2 list-disc space-y-1 pl-4 text-sm text-yellow-800">
-                <li>Describe what happened and include relevant dates, locations, and people.</li>
-                <li>Attach supporting evidence when available.</li>
-                <li>Leave email and phone blank if you prefer to remain anonymous.</li>
-                <li>Save the tracking code displayed after submission.</li>
-              </ul>
+          <div className="grid border-t border-slate-100 bg-slate-50/70 sm:grid-cols-3 sm:divide-x sm:divide-slate-200">
+            <div className="flex items-center gap-3 px-6 py-4 sm:px-5">
+              <LockKeyhole className="h-4 w-4 flex-shrink-0 text-emerald-600" />
+              <p className="text-sm text-slate-600"><strong className="font-semibold text-slate-900">Stay anonymous</strong><br />Contact details are optional</p>
             </div>
+            <div className="flex items-center gap-3 border-t border-slate-200 px-6 py-4 sm:border-t-0 sm:px-5">
+              <Paperclip className="h-4 w-4 flex-shrink-0 text-emerald-600" />
+              <p className="text-sm text-slate-600"><strong className="font-semibold text-slate-900">Add evidence</strong><br />Images or PDF, if available</p>
+            </div>
+            <div className="flex items-center gap-3 border-t border-slate-200 px-6 py-4 sm:border-t-0 sm:px-5">
+              <MessageCircleMore className="h-4 w-4 flex-shrink-0 text-emerald-600" />
+              <p className="text-sm text-slate-600"><strong className="font-semibold text-slate-900">Track & reply</strong><br />Keep your tracking code</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 border-t border-emerald-100 bg-emerald-50 px-6 py-3 text-sm text-emerald-900 sm:px-8">
+            <Check className="h-4 w-4 flex-shrink-0" />
+            <p>For a clearer review, include what happened, when, where, and who was involved.</p>
           </div>
         </section>
 
